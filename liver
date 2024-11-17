@@ -1,0 +1,88 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Updated URL for the Liver Disorders Dataset from UCI ML Repository
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/liver-disorders/bupa.data"
+
+# Load Liver Disorders Dataset 
+# header=None is used because the dataset doesn't have column names in the file
+df = pd.read_csv(url, header=None)
+
+# Rename columns to match the dataset description
+df.columns = ['mcv', 'alkphos', 'sgpt', 'sgot', 'gammagt', 'drinks', 'selector'] 
+
+# Approach 1: Simple Linear Regression (SLR) with 'mcv' as the sole predictor
+# (You can change 'mcv' to any other feature if you want)
+
+# Define feature (X) and target (y) for SLR
+X_slr = df[['mcv']]  # Using 'mcv' as the predictor
+y = df['selector']  # 'selector' is the target variable
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_slr, y, test_size=0.2, random_state=42)
+
+# Initialize and train the SLR model
+slr_model = LinearRegression()
+slr_model.fit(X_train, y_train)
+
+# Make predictions using the test set
+y_pred_slr = slr_model.predict(X_test)
+
+# Evaluate the SLR model
+print("SLR Metrics:")
+print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred_slr))
+print('R-Squared Value:', metrics.r2_score(y_test, y_pred_slr))
+
+# Visualize SLR
+plt.scatter(X_test, y_test, label='Actual')
+plt.plot(X_test, y_pred_slr, 'r-', label='Predicted')
+plt.xlabel('mcv')  # X-axis label
+plt.ylabel('selector')  # Y-axis label
+plt.title('Simple Linear Regression (SLR)')
+plt.legend()
+plt.show()
+
+
+# Approach 2: Multiple Linear Regression (MLR) with all features
+
+# Define feature (X) and target (y) for MLR
+X_mlr = df.drop('selector', axis=1)  # Using all features except 'selector'
+y = df['selector']
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_mlr, y, test_size=0.2, random_state=42)
+
+# Initialize and train the MLR model
+mlr_model = LinearRegression()
+mlr_model.fit(X_train, y_train)
+
+# Make predictions using the test set
+y_pred_mlr = mlr_model.predict(X_test)
+
+# Evaluate the MLR model
+print("\nMLR Metrics:")
+print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred_mlr))
+print('R-Squared Value:', metrics.r2_score(y_test, y_pred_mlr))
+
+# Visualize Actual vs. Predicted for MLR
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 2, 1)
+plt.scatter(y_test, y_pred_mlr)
+plt.xlabel('Actual selector') 
+plt.ylabel('Predicted selector') 
+plt.title('Actual vs. Predicted (MLR)')
+
+plt.subplot(1, 2, 2)
+plt.hist(y_pred_mlr, bins=10)
+plt.xlabel('Predicted selector')  
+plt.ylabel('Frequency')
+plt.title('Distribution of Predictions (MLR)')
+
+plt.tight_layout()
+plt.show()
